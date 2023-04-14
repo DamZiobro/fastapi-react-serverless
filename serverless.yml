@@ -1,0 +1,18 @@
+service: fastapi-react-serverless
+
+provider:
+  name: google
+  runtime: python39
+
+functions:
+  api:
+    handler: pets-api.main.app
+    events:
+      - http: "GET api/hello"
+  frontend:
+    handler: pets-frontend.build
+    events:
+      - http: "GET /"
+
+plugins:
+  - serverless-google-cloudrun
