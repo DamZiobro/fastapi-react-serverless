@@ -6,11 +6,11 @@ provider:
 
 functions:
   api:
-    handler: pets-api.main.app
+    handler: todo-api.main.app
     events:
       - http: "GET api/hello"
   frontend:
-    handler: pets-frontend.build
+    handler: todo-frontend.build
     events:
       - http: "GET /"
 

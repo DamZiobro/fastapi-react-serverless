@@ -13,9 +13,9 @@ make deps
 ```
 2. Fill your .env config files based on .env.example examples:
 ```
-cd pets-frontend/.env.example pets-frontend/.env
+cd todo-frontend/.env.example todo-frontend/.env
 ```
-**Edit the `pets-frontend/.env` file manually** and fill all the required vars.
+**Edit the `todo-frontend/.env` file manually** and fill all the required vars.
 
 3. Run both API and Frontend locally: 
 ```
