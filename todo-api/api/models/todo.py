@@ -1,6 +1,6 @@
 """Implementation of Entities and Models based on the Clean Architecture principles"""
 
-from typing import Optional
+from typing import Union
 
 from pydantic import BaseModel
 
@@ -9,7 +9,7 @@ from pydantic import BaseModel
 class TodoModel(BaseModel):
     id: int
     task: str
-    description: Optional[str] = None
+    description: Union[str, None] = None
     completed: bool = False
 
     class Config:
@@ -27,7 +27,7 @@ class TodoModel(BaseModel):
 # Define a Todo DTO
 class TodoDTO(BaseModel):
     task: str
-    description: Optional[str] = None
+    description: Union[str, None] = None
 
     class Config:
         schema_extra = {
