@@ -29,7 +29,7 @@ def create_todo_repository():
 
 # Create a Todo
 @router.post("/todos/", response_model=TodoModel)
-def create_todo_handler(todo: TodoDTO, todo_repository=Depends(create_todo_repository)):
+async def create_todo_handler(todo: TodoDTO, todo_repository=Depends(create_todo_repository)):
     print("todo: " + str(todo.dict()))
     todo = todo_repository.create_todo(todo)
     return todo
@@ -37,13 +37,13 @@ def create_todo_handler(todo: TodoDTO, todo_repository=Depends(create_todo_repos
 
 # Read all Todos
 @router.get("/todos/", response_model=List[TodoModel])
-def read_todos_handler(todo_repository=Depends(create_todo_repository)):
+async def read_todos_handler(todo_repository=Depends(create_todo_repository)):
     return todo_repository.read_todos()
 
 
 # Read a single Todo by ID
 @router.get("/todos/{todo_id}", response_model=TodoModel)
-def read_todo_handler(todo_id: int, todo_repository=Depends(create_todo_repository)):
+async def read_todo_handler(todo_id: int, todo_repository=Depends(create_todo_repository)):
     todo = todo_repository.read_todo_by_id(todo_id)
     if todo is None:
         raise HTTPException(status_code=404, detail="Todo not found")
@@ -52,7 +52,7 @@ def read_todo_handler(todo_id: int, todo_repository=Depends(create_todo_reposito
 
 # Update a Todo
 @router.put("/todos/{todo_id}", response_model=TodoModel)
-def update_todo_handler(
+async def update_todo_handler(
     todo_id: int, todo: TodoDTO, todo_repository=Depends(create_todo_repository)
 ):
     todo = todo_repository.update_todo_by_id(todo_id, todo)
@@ -63,7 +63,7 @@ def update_todo_handler(
 
 # Delete a Todo
 @router.delete("/todos/{todo_id}")
-def delete_todo_handler(todo_id: int, todo_repository=Depends(create_todo_repository)):
+async def delete_todo_handler(todo_id: int, todo_repository=Depends(create_todo_repository)):
     deleted: bool = todo_repository.delete_todo_by_id(todo_id)
     if not deleted:
         raise HTTPException(status_code=404, detail=f"Todo {todo_id} not found")
