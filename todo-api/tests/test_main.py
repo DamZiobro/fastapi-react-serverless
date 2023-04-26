@@ -36,7 +36,7 @@ def test_create_todo_repository():
 
 
 # Test create_todo_handler
-def test_create_todo_handler_returns_200(
+def test_create_todo_handler_returns_201(
     client: TestClient, todo_repository: TodoInterface, monkeypatch
 ):
     # Test case: create a new Todo successfully
@@ -45,7 +45,7 @@ def test_create_todo_handler_returns_200(
     monkeypatch.setattr(todo_repository, "create_todo", lambda todo: created_todo)
 
     response = client.post("/todos/", json=new_todo.dict())
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json() == created_todo.dict()
 
 

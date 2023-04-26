@@ -28,7 +28,7 @@ def create_todo_repository():
 
 
 # Create a Todo
-@router.post("/todos", response_model=TodoModel)
+@router.post("/todos", response_model=TodoModel, status_code=201)
 async def create_todo_handler(
     todo: TodoDTO, todo_repository=Depends(create_todo_repository)
 ):
