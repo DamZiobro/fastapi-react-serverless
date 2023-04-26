@@ -28,7 +28,7 @@ def create_todo_repository():
 
 
 # Create a Todo
-@router.post("/todos/", response_model=TodoModel)
+@router.post("/todos", response_model=TodoModel)
 async def create_todo_handler(
     todo: TodoDTO, todo_repository=Depends(create_todo_repository)
 ):
@@ -37,7 +37,7 @@ async def create_todo_handler(
 
 
 # Read all Todos
-@router.get("/todos/", response_model=List[TodoModel])
+@router.get("/todos", response_model=List[TodoModel])
 async def read_todos_handler(todo_repository=Depends(create_todo_repository)):
     return todo_repository.read_todos()
 
