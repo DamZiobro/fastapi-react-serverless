@@ -17,11 +17,13 @@ from api.repos import (
 
 @pytest.fixture
 def todo_repository() -> TodoInterface:
-    return InMemoryTodoRepository()
+    repo = InMemoryTodoRepository()
+    repo.todos = []  # clear persistance between each test
+    return repo
 
 
 @pytest.fixture
-def client(todo_repository, monkeypatch):
+def client(todo_repository: TodoInterface, monkeypatch) -> TestClient:
     app.dependency_overrides[create_todo_repository] = lambda: todo_repository
     client = TestClient(app)
     yield client
@@ -147,7 +149,7 @@ def test_delete_todo_handler_not_found(client, todo_repository, monkeypatch):
     assert response.json() == {"detail": "Todo 1 not found"}
 
 
-def test_read_todos_handler(
+def test_read_todos(
     client: TestClient, todo_repository: InMemoryTodoRepository, monkeypatch
 ):
     # Define test data

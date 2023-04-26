@@ -1,19 +1,29 @@
 from typing import List
 
+import pytest
+
 from api.models import TodoDTO
-from api.repos import InMemoryTodoRepository
+from api.repos import (
+    InMemoryTodoRepository,
+    TodoInterface,
+)
 
 
-def test_create_todo():
-    todo_repo = InMemoryTodoRepository()
+@pytest.fixture
+def todo_repo() -> TodoInterface:
+    repo = InMemoryTodoRepository()
+    repo.todos = []  # clear persistance between each test
+    return repo
+
+
+def test_create_todo(todo_repo):
     todo = TodoDTO(task="Test task", description="Test description")
     created_todo = todo_repo.create_todo(todo)
     assert created_todo.task == todo.task
     assert created_todo.description == todo.description
 
 
-def test_read_todos():
-    todo_repo = InMemoryTodoRepository()
+def test_read_todos(todo_repo):
     todo1 = TodoDTO(task="Task 1", description="Description 1")
     todo2 = TodoDTO(task="Task 2", description="Description 2")
     todo_repo.create_todo(todo1)
@@ -27,8 +37,7 @@ def test_read_todos():
     assert todos[1].description == todo2.description
 
 
-def test_read_todo_by_id():
-    todo_repo = InMemoryTodoRepository()
+def test_read_todo_by_id(todo_repo):
     todo1 = TodoDTO(task="Task 1", description="Description 1")
     todo2 = TodoDTO(task="Task 2", description="Description 2")
     created_todo1 = todo_repo.create_todo(todo1)
@@ -41,15 +50,13 @@ def test_read_todo_by_id():
     assert retrieved_todo2.description == created_todo2.description
 
 
-def test_read_todo_by_id_not_found():
-    todo_repo = InMemoryTodoRepository()
+def test_read_todo_by_id_not_found(todo_repo):
     unknown_id = 1
     todo = todo_repo.read_todo_by_id(unknown_id)
     assert todo is None
 
 
-def test_update_todo_by_id():
-    todo_repo = InMemoryTodoRepository()
+def test_update_todo_by_id(todo_repo):
     todo1 = TodoDTO(task="Task 1", description="Description 1")
     created_todo = todo_repo.create_todo(todo1)
     updated_todo = TodoDTO(task="New task", description="New description")
@@ -61,8 +68,7 @@ def test_update_todo_by_id():
     assert retrieved_todo.description == "New description"
 
 
-def test_update_todo_by_id_not_found():
-    todo_repo = InMemoryTodoRepository()
+def test_update_todo_by_id_not_found(todo_repo):
     todo1 = TodoDTO(task="Task 1", description="Description 1")
     todo_repo.create_todo(todo1)
     updated_todo = TodoDTO(task="New task", description="New description")
@@ -70,8 +76,7 @@ def test_update_todo_by_id_not_found():
     assert updated_todo is None
 
 
-def test_delete_todo_by_id():
-    todo_repo = InMemoryTodoRepository()
+def test_delete_todo_by_id(todo_repo):
     todo1 = TodoDTO(task="Task 1", description="Description 1")
     created_todo1 = todo_repo.create_todo(todo1)
     todo2 = TodoDTO(task="Task 2", description="Description 2")
@@ -83,8 +88,7 @@ def test_delete_todo_by_id():
     assert todos[0].id == created_todo2.id
 
 
-def test_delete_todo_by_id_not_found():
-    todo_repo = InMemoryTodoRepository()
+def test_delete_todo_by_id_not_found(todo_repo):
     unknown_id = 1
     deleted = todo_repo.delete_todo_by_id(unknown_id)
     assert deleted is False

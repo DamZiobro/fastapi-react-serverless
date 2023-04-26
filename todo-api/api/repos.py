@@ -34,11 +34,15 @@ class TodoInterface(ABC):
         pass
 
 
+TODOS_PERSISTANCE = []
+
+
 # Define a Todo repository
 class InMemoryTodoRepository(TodoInterface):
     def __init__(self):
-        self.todos = []
-        self.id = 0
+        global TODOS_PERSISTANCE
+        self.todos = TODOS_PERSISTANCE
+        self.id = self.todos[-1].id if self.todos else 0
 
     def create_todo(self, todo: TodoDTO) -> TodoModel:
         self.id += 1
