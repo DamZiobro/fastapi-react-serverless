@@ -2,7 +2,6 @@ import pytest
 from fastapi.testclient import TestClient
 
 from api.main import app
-from api.routes.todo import create_todo_repository
 from api.models.todo import (
     TodoDTO,
     TodoModel,
@@ -11,6 +10,7 @@ from api.repos.todo import (
     InMemoryTodoRepository,
     TodoInterface,
 )
+from api.routes.todo import create_todo_repository
 
 
 @pytest.fixture

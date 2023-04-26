@@ -1,7 +1,5 @@
 """Implementation of Use Cases based on the Clean Architecture principles"""
 
-from typing import List
-
 from fastapi import FastAPI
 from mangum import Mangum
 
