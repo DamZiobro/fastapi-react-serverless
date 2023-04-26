@@ -1,4 +1,5 @@
 CODE_DIRS=api
+TEST_DIRS=tests
 
 deps: ## install dependencies
 	@poetry --version &> /dev/null || (echo -e "ERROR: please install poetry" && false)

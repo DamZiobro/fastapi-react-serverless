@@ -1,24 +1,73 @@
-"""Main file of the FastAPI simple app."""
-import os
+"""Implementation of Use Cases based on the Clean Architecture principles"""
 
-from fastapi import APIRouter, FastAPI
+from typing import List
+
+from fastapi import (
+    APIRouter,
+    Depends,
+    FastAPI,
+    HTTPException,
+)
 from mangum import Mangum
 
 from api import __version__
+from api.models import (
+    TodoDTO,
+    TodoModel,
+)
+from api.repos import InMemoryTodoRepository
+
 
 router = APIRouter()
+app = FastAPI()
 
 
-@router.get("/hello")
-def hello():
-    """GET /hello endpoint."""
-    return {"message": "Hello data from FastAPI"}
+def create_todo_repository():
+    # Create an empty list to hold our Todo items
+    return InMemoryTodoRepository()
 
 
-@router.get("/")
-def root():
-    """GET / endpoint."""
-    return {"message": f"API version: {__version__}"}
+# Create a Todo
+@router.post("/todos/", response_model=TodoModel)
+def create_todo_handler(todo: TodoDTO, todo_repository=Depends(create_todo_repository)):
+    print("todo: " + str(todo.dict()))
+    todo = todo_repository.create_todo(todo)
+    return todo
+
+
+# Read all Todos
+@router.get("/todos/", response_model=List[TodoModel])
+def read_todos_handler(todo_repository=Depends(create_todo_repository)):
+    return todo_repository.read_todos()
+
+
+# Read a single Todo by ID
+@router.get("/todos/{todo_id}", response_model=TodoModel)
+def read_todo_handler(todo_id: int, todo_repository=Depends(create_todo_repository)):
+    todo = todo_repository.read_todo_by_id(todo_id)
+    if todo is None:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    return todo
+
+
+# Update a Todo
+@router.put("/todos/{todo_id}", response_model=TodoModel)
+def update_todo_handler(
+    todo_id: int, todo: TodoDTO, todo_repository=Depends(create_todo_repository)
+):
+    todo = todo_repository.update_todo_by_id(todo_id, todo)
+    if todo is None:
+        raise HTTPException(status_code=404, detail=f"Todo {todo_id}not found")
+    return todo
+
+
+# Delete a Todo
+@router.delete("/todos/{todo_id}")
+def delete_todo_handler(todo_id: int, todo_repository=Depends(create_todo_repository)):
+    deleted: bool = todo_repository.delete_todo_by_id(todo_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail=f"Todo {todo_id} not found")
+    return {"message": "Todo deleted successfully"}
 
 
 app = FastAPI(

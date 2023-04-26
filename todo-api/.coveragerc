@@ -1,0 +1,8 @@
+[report]
+skip_empty = true
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover
+    
+    # skip lines which contain pass
+    pass
