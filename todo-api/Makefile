@@ -11,7 +11,7 @@ run: deps ## run project in localhost web server
 	poetry run uvicorn api.main:app --reload
 
 clean: ## clean project - remove all temporary files and venv dependencies
-	rm -rf deps .venv
+	rm -rf deps .venv **/__pycache__
 
 format: deps ## format code according to PEP-8 style
 	poetry run isort $(CODE_DIRS) $(TEST_DIRS)

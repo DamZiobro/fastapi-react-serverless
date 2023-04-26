@@ -2,8 +2,8 @@ from typing import List
 
 import pytest
 
-from api.models import TodoDTO
-from api.repos import (
+from api.models.todo import TodoDTO
+from api.repos.todo import (
     InMemoryTodoRepository,
     TodoInterface,
 )

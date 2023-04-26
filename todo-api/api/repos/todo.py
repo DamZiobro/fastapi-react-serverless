@@ -5,7 +5,7 @@ from abc import (
     abstractmethod,
 )
 
-from api.models import (
+from api.models.todo import (
     TodoDTO,
     TodoModel,
 )
