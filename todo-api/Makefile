@@ -32,3 +32,6 @@ cov-html: deps ## run unit tests and generate HTML report showing code coverage
 	poetry run coverage html
 
 checks: lint cov ## run all code checks
+
+load-tests: deps ## run load tests using locust tool (make run should be run in another terminal before)
+	poetry run locust --headless -f tests/load/locustfile.py -H http://localhost:8000 --users 100 --spawn-rate 100 --run-time 30s

@@ -15,7 +15,7 @@ from api.models.todo import (
 from api.repos.todo import InMemoryTodoRepository
 
 
-router = APIRouter()
+router = APIRouter(tags=["todos"])
 
 
 def create_todo_repository():
