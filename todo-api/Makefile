@@ -37,5 +37,5 @@ checks: lint cov ## run all code checks
 load-tests: deps ## run load tests using locust tool (make run should be run in another terminal before)
 	poetry run locust --headless -f tests/load/locustfile.py -H $(API_BASE_URL) --users 100 --spawn-rate 100 --run-time 30s
 
-contract-tests: deps ## run API contract tests based on schemathesis tool (make run should be run in another terminal before)
+schema-tests: deps ## run API contract tests based on schemathesis tool (make run should be run in another terminal before)
 	poetry run st run --checks all $(API_BASE_URL)/openapi.json
