@@ -1,5 +1,15 @@
 import pytest
 from fastapi.testclient import TestClient
+from hypothesis import (
+    HealthCheck,
+    example,
+    given,
+    settings,
+)
+from hypothesis.strategies import (
+    integers,
+    text,
+)
 
 from api.main import app
 from api.models.todo import (
@@ -11,6 +21,9 @@ from api.repos.todo import (
     TodoInterface,
 )
 from api.routes.todo import create_todo_repository
+
+
+# Suppress the function_scoped_fixture health check
 
 
 @pytest.fixture
@@ -34,12 +47,15 @@ def test_create_todo_repository():
 
 
 # Test create_todo_handler
+@given(text(min_size=1, max_size=50), text(min_size=1, max_size=50))
+@example("title", "description")
+@settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=10)
 def test_create_todo_handler_returns_201(
-    client: TestClient, todo_repository: TodoInterface, monkeypatch
+    client: TestClient, todo_repository: TodoInterface, monkeypatch, title, desc
 ):
     # Test case: create a new Todo successfully
-    new_todo = TodoDTO(task="test task", description="test description")
-    created_todo = TodoModel(id=1, task="test task", description="test description")
+    new_todo = TodoDTO(task=title, description=desc)
+    created_todo = TodoModel(id=1, task=title, description=desc)
     monkeypatch.setattr(todo_repository, "create_todo", lambda todo: created_todo)
 
     response = client.post("/todos/", json=new_todo.dict())
@@ -47,19 +63,23 @@ def test_create_todo_handler_returns_201(
     assert response.json() == created_todo.dict()
 
 
+@given(text(min_size=1, max_size=50))
+@settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=10)
 def test_create_todo_handler_validates_missing_input_fields(
-    client: TestClient, todo_repository: TodoInterface, monkeypatch
+    client: TestClient, todo_repository: TodoInterface, monkeypatch, desc
 ):
     # Test case: create a new Todo with missing required fields
-    response = client.post("/todos/", json={"description": "test task"})
+    response = client.post("/todos/", json={"description": desc})
     assert response.status_code == 422
 
 
+@given(integers(min_value=1))
+@settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=10)
 def test_create_todo_handler_validates_incorrect_type_of_input_field(
-    client: TestClient, todo_repository: TodoInterface, monkeypatch
+    client: TestClient, todo_repository: TodoInterface, monkeypatch, int_value
 ):
     # Test case: create a new Todo with invalid input type
-    invalid_todo = {"description": 123}
+    invalid_todo = {"description": int_value}
     monkeypatch.setattr(todo_repository, "create_todo", lambda todo: invalid_todo)
 
     response = client.post("/todos/", json=invalid_todo)
@@ -67,14 +87,18 @@ def test_create_todo_handler_validates_incorrect_type_of_input_field(
 
 
 # Test update_todo_handler
+@given(text(min_size=1, max_size=50), text(min_size=1, max_size=50))
+@settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=10)
 def test_update_todo_handler(
-    client: TestClient, todo_repository: TodoInterface, monkeypatch
+    client: TestClient,
+    todo_repository: TodoInterface,
+    monkeypatch,
+    updated_title,
+    updated_desc,
 ):
     # Test case: update an existing Todo successfully
     existing_todo = TodoModel(id=1, task="test task", description="test description")
-    updated_todo = TodoModel(
-        id=1, task="updated task", description="updated description"
-    )
+    updated_todo = TodoModel(id=1, task=updated_title, description=updated_desc)
     monkeypatch.setattr(
         todo_repository, "update_todo_by_id", lambda id, todo: updated_todo
     )
@@ -84,13 +108,17 @@ def test_update_todo_handler(
     assert response.json() == updated_todo.dict()
 
 
+@given(text(min_size=1, max_size=50), text(min_size=1, max_size=50))
+@settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=10)
 def test_update_todo_handler_returns_404_for_non_existing_todos(
-    client: TestClient, todo_repository: TodoInterface, monkeypatch
+    client: TestClient,
+    todo_repository: TodoInterface,
+    monkeypatch,
+    updated_title,
+    updated_desc,
 ):
     # Test case: update a non-existing Todo
-    updated_todo = TodoModel(
-        id=1, task="updated task", description="updated description"
-    )
+    updated_todo = TodoModel(id=1, task=updated_title, description=updated_desc)
     non_existing_todo_id = 2
     monkeypatch.setattr(todo_repository, "update_todo_by_id", lambda id, todo: None)
 
@@ -98,9 +126,11 @@ def test_update_todo_handler_returns_404_for_non_existing_todos(
     assert response.status_code == 404
 
 
-def test_read_todo_handler(client, todo_repository, monkeypatch):
+@given(text(min_size=1, max_size=50), text(min_size=1, max_size=50))
+@settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=10)
+def test_read_todo_handler(client, todo_repository, monkeypatch, title, desc):
     # Arrange
-    todo = TodoModel(id=1, task="Test task", description="Test description")
+    todo = TodoModel(id=1, task=title, description=desc)
     monkeypatch.setattr(todo_repository, "read_todo_by_id", lambda todo_id: todo)
 
     # Act
@@ -147,12 +177,25 @@ def test_delete_todo_handler_not_found(client, todo_repository, monkeypatch):
     assert response.json() == {"detail": "Todo 1 not found"}
 
 
+@given(
+    text(min_size=1, max_size=50),
+    text(min_size=1, max_size=50),
+    text(min_size=1, max_size=50),
+    text(min_size=1, max_size=50),
+)
+@settings(suppress_health_check=[HealthCheck.function_scoped_fixture], max_examples=10)
 def test_read_todos(
-    client: TestClient, todo_repository: InMemoryTodoRepository, monkeypatch
+    client: TestClient,
+    todo_repository: InMemoryTodoRepository,
+    monkeypatch,
+    title1,
+    desc1,
+    title2,
+    desc2,
 ):
     # Define test data
-    test_todo_1 = TodoModel(id=1, task="Task 1", description="Description 1")
-    test_todo_2 = TodoModel(id=2, task="Task 2", description="Description 2")
+    test_todo_1 = TodoModel(id=1, task=title1, description=desc1)
+    test_todo_2 = TodoModel(id=2, task=title2, description=desc2)
 
     # Mock the read_todos method to return test data
     monkeypatch.setattr(
