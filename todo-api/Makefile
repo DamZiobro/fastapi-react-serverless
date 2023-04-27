@@ -1,5 +1,6 @@
 CODE_DIRS=api
 TEST_DIRS=tests
+API_BASE_URL ?= http://localhost:8000
 
 deps: ## install dependencies
 	@poetry --version &> /dev/null || (echo -e "ERROR: please install poetry" && false)
@@ -34,4 +35,7 @@ cov-html: deps ## run unit tests and generate HTML report showing code coverage
 checks: lint cov ## run all code checks
 
 load-tests: deps ## run load tests using locust tool (make run should be run in another terminal before)
-	poetry run locust --headless -f tests/load/locustfile.py -H http://localhost:8000 --users 100 --spawn-rate 100 --run-time 30s
+	poetry run locust --headless -f tests/load/locustfile.py -H $(API_BASE_URL) --users 100 --spawn-rate 100 --run-time 30s
+
+contract-tests: deps ## run API contract tests based on schemathesis tool (make run should be run in another terminal before)
+	poetry run st run --checks all $(API_BASE_URL)/openapi.json
